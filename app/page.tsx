@@ -10,6 +10,15 @@ function Home() {
 
   const comboTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    const saved = localStorage.getItem("popcat-count");
+    if (saved) setCount(parseInt(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("popcat-count", String(count));
+  }, [count]);
+
   const pop = () => {
     setCount((c) => c + 1);
     setCombo((c) => c + 1);
