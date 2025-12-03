@@ -17,7 +17,7 @@ function Home() {
   useEffect(() => {
     popSounds.current = Array.from({ length: POP_SOUND_COUNT }, () => {
       const audio = new Audio("/pop.mp3");
-      audio.volume = 1.0;
+      audio.volume = 0.5;
       return audio;
     });
   }, []);
