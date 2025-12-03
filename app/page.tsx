@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-const POP_SOUND_COUNT = 8;
+const POP_SOUND_COUNT = 12;
 
 function Home() {
   const [count, setCount] = useState(0);
