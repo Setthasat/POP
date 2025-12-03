@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
+const POP_SOUND_COUNT = 8;
+
 function Home() {
   const [count, setCount] = useState(0);
   const [isPoping, setIsPoping] = useState(false);
@@ -9,34 +11,38 @@ function Home() {
   const [comboAnimation, setComboAnimation] = useState(false);
 
   const comboTimeout = useRef<NodeJS.Timeout | null>(null);
+  const popSounds = useRef<HTMLAudioElement[]>([]);
+  const soundIndex = useRef(0);
 
   useEffect(() => {
-    const saved = localStorage.getItem("popcat-count");
-    if (saved) setCount(parseInt(saved));
+    popSounds.current = Array.from({ length: POP_SOUND_COUNT }, () => {
+      const audio = new Audio("/pop.mp3");
+      audio.volume = 1.0;
+      return audio;
+    });
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("popcat-count", String(count));
-  }, [count]);
+  const playPopSound = () => {
+    const sound = popSounds.current[soundIndex.current];
+    sound.currentTime = 0;
+    sound.play();
+    soundIndex.current = (soundIndex.current + 1) % POP_SOUND_COUNT;
+  };
 
   const pop = () => {
+    playPopSound();
+
     setCount((c) => c + 1);
     setCombo((c) => c + 1);
 
     setShowCombo(true);
     setComboAnimation(true);
-
-    setTimeout(() => {
-      setComboAnimation(false);
-    }, 300);
+    setTimeout(() => setComboAnimation(false), 300);
 
     setIsPoping(true);
-    setTimeout(() => {
-      setIsPoping(false);
-    }, 100);
+    setTimeout(() => setIsPoping(false), 100);
 
     if (comboTimeout.current) clearTimeout(comboTimeout.current);
-
     comboTimeout.current = setTimeout(() => {
       setCombo(0);
       setShowCombo(false);
@@ -48,7 +54,6 @@ function Home() {
       e.preventDefault();
       pop();
     };
-
     window.addEventListener("keydown", handlekey);
     return () => window.removeEventListener("keydown", handlekey);
   }, []);
@@ -58,7 +63,7 @@ function Home() {
       <img
         src="cat.png"
         onClick={pop}
-        className={`w-100 h-100 cursor-pointer transition-transform duration-100 ${
+        className={`animate-horizontal-spin w-100 h-100 cursor-pointer transition-transform duration-100 ${
           isPoping ? "scale-90" : "scale-100"
         }`}
         alt="cat"
@@ -68,7 +73,7 @@ function Home() {
       {showCombo && (
         <div
           className={
-            `absolute top-20 text-5xl font-extrabold text-white pointer-events-none transition-all duration-300` +
+            `absolute top-20 text-5xl font-extrabold text-white pointer-events-none transition-all duration-300 ` +
             (comboAnimation
               ? "opacity-100 scale-125 rotate-6"
               : "opacity-0 scale-75 -rotate-6")
